@@ -9,6 +9,8 @@ This is a full-stack project management system for managing projects between cli
 - [Installation](#installation)
 - [Running the Project](#running-the-project)
 - [API Endpoints](#api-endpoints)
+- [Advantages](#dvantages)
+- [Disadvantages](#disadvantages)
 
 ## Project Structure
 
