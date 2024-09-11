@@ -33,8 +33,8 @@ Ensure you have the following installed:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-repo/project-management-system.git
-cd project-management-system
+git clone https://github.com/elanart/Nexusphere
+cd Nexusphere
 ```
 
 ### 2. Install dependencies
