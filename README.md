@@ -19,14 +19,14 @@ The project has the following structure:
 ├── server/ # Backend - Fastify 
 └── README.md # Project documentation
 
-- `client/`: Contains the front-end (Next.js) application.
-- `server/`: Contains the back-end (Fastify) API services.
+- `client/`: Contains the front-end application.
+- `server/`: Contains the back-end API services.
 
 ## Prerequisites
 Ensure you have the following installed:
 
 - [Node.js](https://nodejs.org/en/) (version 16.x or above)
-- [Yarn](https://yarnpkg.com/) (or npm if preferred)
+- [Npm](https://www.npmjs.com/) (or yarn if preferred)
 
 ## Installation
 
