@@ -1,0 +1,203 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRoleEnum {
+  ADMIN
+  FREELANCER
+  CLIENT
+}
+
+enum ProjectStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskStatus {
+  TO_DO
+  IN_PROGRESS
+  DONE
+  BLOCKED
+}
+
+enum PriorityEnum {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Skill {
+  id          String       @id @default(uuid())
+  name         String
+  level        String?
+  
+  freelancerId String
+  freelancer   Freelancer @relation(fields: [freelancerId], references: [userId])
+}
+
+model User {
+  id          String       @id @default(uuid())
+  username    String       @unique
+  password    String
+  fullName    String
+  email       String       @unique
+  avatar      String?
+  role        UserRoleEnum
+  createdDate DateTime     @default(now())
+  isActive    Boolean      @default(true)
+
+  freelancer  Freelancer?
+
+  client Client?
+
+  task Task[]
+
+  notification Notification[]
+
+  chatParticipant ChatParticipant[]
+
+  message Message[]
+
+  Session Session[]
+}
+
+model Freelancer {
+  userId       String       @id @unique @map("user_id")
+  bio          String?
+  experience   Int
+  availability String?
+  skills       Skill[]
+
+  user         User         @relation(fields: [userId], references: [id])
+
+  projects FreelancerProject[]
+}
+
+model Client {
+  userId       String       @id @unique @map("user_id")
+  services     String
+
+  user         User      @relation(fields: [userId], references: [id])
+
+  project Project[]
+}
+
+model Project {
+  id          String       @id @default(uuid())
+  name        String
+  status      ProjectStatus @default(NOT_STARTED)
+  priority    PriorityEnum
+  category    String?
+  isArchived  Boolean          @default(false)
+  startDate   DateTime         @default(now())
+  endDate   DateTime
+
+  clientId    String
+  client      Client           @relation(fields: [clientId], references: [userId])
+
+  freelancers FreelancerProject[]
+
+  tasks       Task[]
+
+  projectDetail ProjectDetail?
+}
+
+model ProjectDetail {
+  projectId     String       @id @unique @map("project_id")
+  description   String?
+  deadline     DateTime
+  deliverables  String
+
+  project       Project      @relation(fields: [projectId], references: [id])
+}
+
+model FreelancerProject {
+  projectId    String
+  freelancerId String
+
+  project      Project   @relation(fields: [projectId], references: [id])
+  freelancer   Freelancer @relation(fields: [freelancerId], references: [userId])
+
+  assignedDate DateTime  @default(now())
+  role         String
+
+  @@id([projectId, freelancerId])
+}
+
+model Task {
+  id          String       @id @default(uuid())
+  name        String
+  description String
+  status      TaskStatus
+  priority    PriorityEnum
+  dueDate     DateTime?
+
+  projectId   String
+  project     Project      @relation(fields: [projectId], references: [id])
+
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+
+  createdDate DateTime     @default(now())
+  updatedDate DateTime     @updatedAt
+}
+
+model Notification {
+  id          String       @id @default(uuid())
+  message     String
+  isRead      Boolean  @default(false)
+  createdDate DateTime @default(now())
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model ChatRoom {
+  id          String       @id @default(uuid())
+  createdDate DateTime      @default(now())
+  participants ChatParticipant[]
+  messages    Message[]
+}
+
+model ChatParticipant {
+  id        String       @id @default(uuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  chatRoomId String
+  chatRoom  ChatRoom @relation(fields: [chatRoomId], references: [id])
+  joinedAt  DateTime @default(now())
+
+  @@unique([userId, chatRoomId])
+}
+
+model Message {
+  id          String       @id @default(uuid())
+  content     String
+  senderId    String
+  sender      User       @relation(fields: [senderId], references: [id])
+  chatRoomId  String
+  chatRoom    ChatRoom   @relation(fields: [chatRoomId], references: [id])
+  sentAt      DateTime   @default(now())
+  isRead      Boolean    @default(false)
+}
+
+model Session {
+  token     String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
